@@ -1,6 +1,7 @@
 package com.aninfo.integration.cucumber;
 
 import com.aninfo.exceptions.DepositNegativeSumException;
+import com.aninfo.exceptions.DepositNullSumException;
 import com.aninfo.exceptions.InsufficientFundsException;
 import com.aninfo.model.Account;
 import cucumber.api.java.After;
@@ -18,6 +19,8 @@ public class AccountOperationsTest extends AccountIntegrationServiceTest {
     private Account account;
     private InsufficientFundsException ife;
     private DepositNegativeSumException dnse;
+    private DepositNullSumException dzae;
+
 
     @Before
     public void setup() {
@@ -40,12 +43,18 @@ public class AccountOperationsTest extends AccountIntegrationServiceTest {
 
     @When("^Trying to deposit (.*)$")
     public void trying_to_deposit(int sum) {
+
         try {
             account = deposit(account, Double.valueOf(sum));
-        } catch (DepositNegativeSumException dnse) {
+        }
+        catch (DepositNegativeSumException dnse) {
             this.dnse = dnse;
         }
+        catch (DepositNullSumException dzae) {
+            this.dzae = dzae;
+        }
     }
+
 
     @Then("^Account balance should be (\\d+)$")
     public void account_balance_should_be(int balance) {
@@ -56,6 +65,19 @@ public class AccountOperationsTest extends AccountIntegrationServiceTest {
     public void operation_should_be_denied_due_to_insufficient_funds() {
         assertNotNull(ife);
     }
+
+
+
+    @Then("^Operation should be denied due to null sums$")
+    public void operation_should_be_denied_due_to_null_sums() {
+        assertNotNull(dzae);
+    }
+
+    @Then("^Operation should be denied because you do not have that balance in the account$")
+    public void operation_should_be_denied_because_you_do_not_have_that_balance_in_the_account() {
+        assertNotNull(ife);
+    }
+
 
     @Then("^Operation should be denied due to negative sum$")
     public void operation_should_be_denied_due_to_negative_sum() {
