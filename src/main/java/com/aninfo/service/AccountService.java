@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import static com.aninfo.enumTransaction.EnumTransactionName.WITHDRAW;
 import static com.aninfo.enumTransaction.EnumTransactionName.DEPOSIT;
-import static com.aninfo.model.MapTransactionToList.createTransactionTOFrom;
-import static com.aninfo.model.MapTransactionToList.createListOfTransactionTOFrom;
+import static com.aninfo.model.MapTransactionToList.createTransactionToFrom;
+import static com.aninfo.model.MapTransactionToList.createListOfTransactionToFrom;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -101,16 +101,16 @@ public class AccountService {
     public List<Transaction> getTransactionsByCbu(Long cbu){
         var account = accountRepository.findAccountByCbu(cbu);
         var transactions = transactionRepository.findAllByCbuAssociated(account);
-        return createListOfTransactionTOFrom(transactions);
+        return createListOfTransactionToFrom(transactions);
 
     }
 
     public Transaction getTransactionById(Long transactionId){
-        return createTransactionTOFrom(transactionRepository.findById(transactionId)
+        return createTransactionToFrom(transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot found transaction with id " + transactionId)));
     }
 
-    public void deleteTransactionById(Long transactionId){
+    public void deleteTransaction(Long transactionId){
         transactionRepository.deleteById(transactionId);
     }
 

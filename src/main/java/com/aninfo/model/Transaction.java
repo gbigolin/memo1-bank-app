@@ -8,8 +8,8 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String transactionType;
     private Double amount;
+    private String transactionType;
 
     @OneToOne
     @JoinColumn(name = "Bank_Account", referencedColumnName = "CBU")
@@ -25,7 +25,7 @@ public class Transaction {
     }
 
     public Transaction( Long id, Account cbuAssociated, String transactionType, Double amount ) {
-        this.id = id;
+        this.id = id; // en el primer transaction no esta ya que se crea ahi
         this.cbuAssociated = cbuAssociated;
         this.transactionType = transactionType;
         this.amount = amount;
@@ -35,7 +35,7 @@ public class Transaction {
 
     public void setId(Long id) { this.id = id; }
 
-    public Account getCbuAssociated() { return cbuAssociated; }
+    public Account getCbuAssociated() { return cbuAssociated;}
 
     public void setCbuAssociated (Account cbuAssociated){ this.cbuAssociated = cbuAssociated;}
 

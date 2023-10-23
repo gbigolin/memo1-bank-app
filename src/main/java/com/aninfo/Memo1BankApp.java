@@ -85,8 +85,8 @@ public class Memo1BankApp {
 	}
 
 	@DeleteMapping("/transactions/{id}")
-	public String deleteTransactionById(@PathVariable Long id){
-		accountService.deleteTransactionById(id);
+	public String deleteTransaction(@PathVariable Long id){
+		accountService.deleteTransaction(id);
 		return "TRANSACTION DELETED SUCCESSFULLY";
 	}
 

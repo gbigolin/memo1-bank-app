@@ -39,5 +39,5 @@ Feature:Bank account operations
     When Trying to withdraw 5000
     Then Operation should be denied because you do not have that balance in the account
     And Account balance should remain 1500
-    
+
 
