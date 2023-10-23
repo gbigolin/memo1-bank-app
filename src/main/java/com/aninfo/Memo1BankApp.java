@@ -1,6 +1,7 @@
 package com.aninfo;
 
 import com.aninfo.model.Account;
+import com.aninfo.model.Transaction;
 import com.aninfo.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.List;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -59,27 +61,41 @@ public class Memo1BankApp {
 		accountService.save(account);
 		return ResponseEntity.ok().build();
 	}
-
 	@DeleteMapping("/accounts/{cbu}")
 	public void deleteAccount(@PathVariable Long cbu) {
 		accountService.deleteById(cbu);
 	}
-
 	@PutMapping("/accounts/{cbu}/withdraw")
 	public Account withdraw(@PathVariable Long cbu, @RequestParam Double sum) {
 		return accountService.withdraw(cbu, sum);
 	}
-
 	@PutMapping("/accounts/{cbu}/deposit")
 	public Account deposit(@PathVariable Long cbu, @RequestParam Double sum) {
 		return accountService.deposit(cbu, sum);
 	}
 
+	@GetMapping("/transactions/{cbu}")
+	public List<Transaction> getTransactionsFromCbu(@PathVariable Long cbu) {
+		return accountService.getTransactionsByCbu(cbu);
+	}
+
+	@GetMapping("/transactions/transaction/{id}")
+	public Transaction getTransactionById(@PathVariable Long id){
+		return accountService.getTransactionById(id);
+	}
+
+	@DeleteMapping("/transactions/{id}")
+	public String deleteTransactionById(@PathVariable Long id){
+		accountService.deleteTransactionById(id);
+		return "TRANSACTION DELETED SUCCESSFULLY";
+	}
+
+
 	@Bean
 	public Docket apiDocket() {
 		return new Docket(DocumentationType.SWAGGER_2)
 			.select()
-			.apis(RequestHandlerSelectors.any())
+			.apis( RequestHandlerSelectors.basePackage("com.aninfo" ) )
 			.paths(PathSelectors.any())
 			.build();
 	}
