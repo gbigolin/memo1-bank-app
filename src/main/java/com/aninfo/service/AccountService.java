@@ -1,21 +1,35 @@
 package com.aninfo.service;
 
 import com.aninfo.exceptions.DepositNegativeSumException;
+import com.aninfo.exceptions.DepositNullSumException;
 import com.aninfo.exceptions.InsufficientFundsException;
 import com.aninfo.model.Account;
+import com.aninfo.model.Transaction;
 import com.aninfo.repository.AccountRepository;
+import com.aninfo.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.aninfo.enumTransaction.EnumTransactionName.WITHDRAW;
+import static com.aninfo.enumTransaction.EnumTransactionName.DEPOSIT;
+import static com.aninfo.model.MapTransactionToList.createTransactionTOFrom;
+import static com.aninfo.model.MapTransactionToList.createListOfTransactionTOFrom;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.List;
+import javax.persistence.EntityNotFoundException;
+
 
 @Service
 public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
 
     public Account createAccount(Account account) {
         return accountRepository.save(account);
@@ -45,24 +59,60 @@ public class AccountService {
             throw new InsufficientFundsException("Insufficient funds");
         }
 
+        var transaction = new Transaction(account, WITHDRAW.name() , sum);
         account.setBalance(account.getBalance() - sum);
         accountRepository.save(account);
 
+        transactionRepository.save(transaction);
+
         return account;
     }
 
+    private Double addAdditionalPerPromo(Double sum){
+        Double additionalBonus = sum * 0.1;
+        if (additionalBonus > 500) {
+            additionalBonus = 500.0;
+        }
+        return additionalBonus;
+    }
     @Transactional
     public Account deposit(Long cbu, Double sum) {
 
-        if (sum <= 0) {
+        if (sum < 0) {
             throw new DepositNegativeSumException("Cannot deposit negative sums");
+        } else if(sum == 0){
+            throw new DepositNullSumException("Cannot deposit null sums");
         }
 
-        Account account = accountRepository.findAccountByCbu(cbu);
-        account.setBalance(account.getBalance() + sum);
-        accountRepository.save(account);
+       if((sum >= 2000))
+           sum += addAdditionalPerPromo(sum);
 
-        return account;
+           Account account = accountRepository.findAccountByCbu(cbu);
+           var transaction = new Transaction(account, DEPOSIT.name() , sum);
+           account.setBalance(account.getBalance() + sum);
+           accountRepository.save(account);
+
+           transactionRepository.save(transaction);
+
+           return account;
     }
+
+
+    public List<Transaction> getTransactionsByCbu(Long cbu){
+        var account = accountRepository.findAccountByCbu(cbu);
+        var transactions = transactionRepository.findAllByCbuAssociated(account);
+        return createListOfTransactionTOFrom(transactions);
+
+    }
+
+    public Transaction getTransactionById(Long transactionId){
+        return createTransactionTOFrom(transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot found transaction with id " + transactionId)));
+    }
+
+    public void deleteTransactionById(Long transactionId){
+        transactionRepository.deleteById(transactionId);
+    }
+
 
 }
