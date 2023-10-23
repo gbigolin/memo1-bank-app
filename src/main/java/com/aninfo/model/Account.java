@@ -3,6 +3,7 @@ package com.aninfo.model;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "Bank_Account")
 public class Account {
 
     @Id
@@ -10,8 +11,8 @@ public class Account {
     private Long cbu;
 
     private Double balance;
-
     public Account(){
+
     }
 
     public Account(Double balance) {
